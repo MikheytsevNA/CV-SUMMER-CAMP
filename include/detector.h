@@ -15,7 +15,7 @@ using namespace std;
 class Detector
 {
 public:
-    virtual vector<DetectedObject> Detect(Mat image) = 0 {}
+    virtual Mat Detect(Mat image) = 0 {}
 };
 class DnnDetector :Detector
 {
@@ -26,7 +26,7 @@ private:
 	bool swapRB;
 public:
 	Net net;
-	vector<DetectedObject> Detect(Mat image);
-	DnnDetector(String path_to_model, String path_to_config, String path_to_labels,
+	Mat Detect(Mat image);
+	DnnDetector(String path_to_model, String path_to_config,
 		int inputWidth, int inputHeight, Scalar mean, bool swapRB);
 };

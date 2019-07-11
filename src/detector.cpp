@@ -1,25 +1,27 @@
 #include "detector.h"
 
-DnnDetector::DnnDetector(String model, String config, String labels,
+DnnDetector::DnnDetector(String model, String config,
 	int Width, int Height, Scalar mmean, bool sswapRB)
 {
 	path_to_model = model;
 	path_to_config = config;
-	path_to_labels = labels;
 	inputWidth = Width;
 	inputHeight = Height;
 	mean = mmean;
 	swapRB = sswapRB;
-	net = readNet(model, config);
+	net = readNetFromCaffe(config, model);
 	net.setPreferableBackend(DNN_BACKEND_OPENCV);
 	net.setPreferableTarget(DNN_TARGET_CPU);
 }
-vector<DetectedObject> DnnDetector::Detect(Mat image)
+Mat DnnDetector::Detect(Mat image)
 {
 	Mat inputTarget;
-	blobFromImage(image, inputTarget, 1.0, Size(inputWidth, inputHeight),
-		mean, swapRB, false);
+	blobFromImage(image, inputTarget, 0.007843, Size(inputWidth, inputHeight),
+		(127.5, 127.5, 127.5), swapRB, false);
 	net.setInput(inputTarget);
-	vector<DetectedObject> result = net.forward();
-	return result;
+	Mat detection = net.forward("detection_out");
+	Mat detectionMat(detection.size[2], detection.size[3], CV_32F, detection.ptr<float>());
+	Size s = detectionMat.size();
+	//cout << s << "\n";
+	return detectionMat;
 }
